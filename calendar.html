@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Calendar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    .light-mode {
+      background: #f0f0f0;
+      color: #000;
+    }
+    .calendar {
+      width: 100%;
+      max-width: 360px;
+      padding: 1rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+    .header button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .month-year {
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+      color: #999;
+      font-size: 0.9rem;
+    }
+    .dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    .dates div {
+      padding: 0.5rem 0;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    .dates div:hover {
+      background: #333;
+      cursor: pointer;
+    }
+    .highlight {
+      background: #444;
+    }
+    .dim {
+      color: #444;
+    }
+    .sunday {
+      color: #ff9999;
+    }
+    .light-mode .header,
+    .light-mode .days {
+      color: #444;
+    }
+    .light-mode .dim {
+      color: #aaa;
+    }
+    .light-mode .sunday {
+      color: #d33;
+    }
+    .light-mode .dates div:hover {
+      background: #ddd;
+    }
+    .light-mode .highlight {
+      background: #ccc;
+    }
+    @media (max-width: 400px) {
+      .calendar {
+        max-width: 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calendar">
+    <div class="header">
+      <button onclick="changeMonth(-1)">&lt;</button>
+      <div class="month-year" id="monthYear" onclick="toggleLightMode()"></div>
+      <button onclick="changeMonth(1)">&gt;</button>
+    </div>
+    <div class="days">
+      <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+    </div>
+    <div class="dates" id="calendarDates"></div>
+  </div>
+
+  <script>
+    const monthYear = document.getElementById('monthYear');
+    const calendarDates = document.getElementById('calendarDates');
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+
+    function renderCalendar(month, year) {
+      const firstDay = (new Date(year, month).getDay() + 6) % 7; // start on Monday
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const prevLastDate = new Date(year, month, 0).getDate();
+
+      calendarDates.innerHTML = '';
+      monthYear.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+
+      // previous month's dates
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const day = document.createElement('div');
+        day.textContent = prevLastDate - i;
+        day.classList.add('dim');
+        calendarDates.appendChild(day);
+      }
+
+      // current month's dates
+      for (let i = 1; i <= lastDate; i++) {
+        const date = new Date(year, month, i);
+        const day = document.createElement('div');
+        day.textContent = i;
+
+        if (date.getDay() === 0) {
+          day.classList.add('sunday');
+        }
+        if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          day.classList.add('highlight');
+        }
+        calendarDates.appendChild(day);
+      }
+
+      // fill the remaining cells
+      const totalCells = firstDay + lastDate;
+      const nextDays = (7 - (totalCells % 7)) % 7;
+      for (let i = 1; i <= nextDays; i++) {
+        const day = document.createElement('div');
+        day.textContent = i;
+        day.classList.add('dim');
+        calendarDates.appendChild(day);
+      }
+    }
+
+    function changeMonth(offset) {
+      currentMonth += offset;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar(currentMonth, currentYear);
+    }
+
+    function toggleLightMode() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    renderCalendar(currentMonth, currentYear);
+  </script>
+</body>
+</html>
