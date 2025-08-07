@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Progress Bars</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1a1a1a;
+      font-family: 'Space Grotesk', sans-serif;
+      color: white;
+      padding: 40px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .progress-container {
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .progress-bar {
+      background-color: #555;
+      border-radius: 25px;
+      flex-grow: 1;
+      height: 25px;
+      overflow: hidden;
+      margin-right: 10px;
+      min-width: 200px;
+    }
+
+    .progress-fill {
+      background-color: white;
+      height: 100%;
+      border-radius: 25px 0 0 25px;
+    }
+
+    .label {
+      min-width: 80px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-container">
+    <div class="bar">
+      <div class="progress-bar">
+        <div class="progress-fill" id="year-fill"></div>
+      </div>
+      <div class="label" id="year-label"></div>
+    </div>
+    <div class="bar">
+      <div class="progress-bar">
+        <div class="progress-fill" id="month-fill"></div>
+      </div>
+      <div class="label" id="month-label"></div>
+    </div>
+    <div class="bar">
+      <div class="progress-bar">
+        <div class="progress-fill" id="week-fill"></div>
+      </div>
+      <div class="label" id="week-label"></div>
+    </div>
+    <div class="bar">
+      <div class="progress-bar">
+        <div class="progress-fill" id="day-fill"></div>
+      </div>
+      <div class="label" id="day-label"></div>
+    </div>
+  </div>
+
+  <script>
+    function updateProgress() {
+      const now = new Date();
+
+      // Year progress
+      const startYear = new Date(now.getFullYear(), 0, 1);
+      const endYear = new Date(now.getFullYear() + 1, 0, 1);
+      const yearProgress = ((now - startYear) / (endYear - startYear)) * 100;
+
+      // Month progress
+      const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const monthProgress = ((now - startMonth) / (endMonth - startMonth)) * 100;
+
+      // Week progress
+      const dayOfWeek = now.getDay(); // 0 (Sun) to 6 (Sat)
+      const startWeek = new Date(now);
+      startWeek.setDate(now.getDate() - dayOfWeek);
+      startWeek.setHours(0, 0, 0, 0);
+      const endWeek = new Date(startWeek);
+      endWeek.setDate(startWeek.getDate() + 7);
+      const weekProgress = ((now - startWeek) / (endWeek - startWeek)) * 100;
+
+      // Day progress
+      const startDay = new Date(now);
+      startDay.setHours(0, 0, 0, 0);
+      const endDay = new Date(now);
+      endDay.setHours(24, 0, 0, 0);
+      const dayProgress = ((now - startDay) / (endDay - startDay)) * 100;
+
+      // Update DOM
+      document.getElementById("year-fill").style.width = yearProgress.toFixed(2) + "%";
+      document.getElementById("year-label").textContent = "Year: " + yearProgress.toFixed(0) + "%";
+
+      document.getElementById("month-fill").style.width = monthProgress.toFixed(2) + "%";
+      document.getElementById("month-label").textContent = "Month: " + monthProgress.toFixed(0) + "%";
+
+      document.getElementById("week-fill").style.width = weekProgress.toFixed(2) + "%";
+      document.getElementById("week-label").textContent = "Week: " + weekProgress.toFixed(0) + "%";
+
+      document.getElementById("day-fill").style.width = dayProgress.toFixed(2) + "%";
+      document.getElementById("day-label").textContent = "Day: " + dayProgress.toFixed(0) + "%";
+    }
+
+    updateProgress();
+    setInterval(updateProgress, 60000); // Update every minute
+  </script>
+</body>
+</html>
