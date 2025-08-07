@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digital Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #1e1e1e;
+      --text-color: #e0e0e0;
+      --ampm-color: #ccc;
+    }
+
+    body.light {
+      --bg-color: #f0f0f0;
+      --text-color: #1e1e1e;
+      --ampm-color: #555;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .clock {
+      display: flex;
+      align-items: baseline;
+      font-size: 15vw;
+      font-weight: 500;
+    }
+
+    .ampm {
+      font-size: 3vw;
+      margin-left: 0.5vw;
+      font-weight: 400;
+      color: var(--ampm-color);
+    }
+
+    @media (max-width: 600px) {
+      .clock {
+        font-size: 20vw;
+      }
+
+      .ampm {
+        font-size: 5vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock">
+    2:47 <span class="ampm">PM</span>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      const paddedMinutes = minutes.toString().padStart(2, '0');
+
+      document.getElementById('clock').innerHTML = `
+        ${hours}:${paddedMinutes} <span class="ampm">${ampm}</span>
+      `;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    document.body.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+    });
+  </script>
+</body>
+</html>
