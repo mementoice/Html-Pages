@@ -1,87 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Digital Clock</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Calendar</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-color: #1e1e1e;
-      --text-color: #e0e0e0;
-      --ampm-color: #ccc;
-    }
-
-    body.light {
-      --bg-color: #f0f0f0;
-      --text-color: #1e1e1e;
-      --ampm-color: #555;
-    }
-
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      padding: 0;
+    }
+    body {
       font-family: 'Space Grotesk', sans-serif;
+      background: #111;
+      color: #fff;
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-      transition: background-color 0.3s, color 0.3s;
+      align-items: center;
+      height: 50vh;
+      transition: background 0.3s, color 0.3s;
     }
-
-    .clock {
+    .light-mode {
+      background: #f0f0f0;
+      color: #000;
+    }
+    .calendar {
+      width: 100%;
+      max-width: 360px;
+      padding: 1rem;
+    }
+    .header {
       display: flex;
-      align-items: baseline;
-      font-size: 15vw;
+      justify-content: space-between;
+      align-items: center;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+    .header button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .month-year {
       font-weight: 500;
+      cursor: pointer;
     }
-
-    .ampm {
-      font-size: 3vw;
-      margin-left: 0.5vw;
-      font-weight: 400;
-      color: var(--ampm-color);
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+      color: #999;
+      font-size: 0.9rem;
     }
-
-    @media (max-width: 600px) {
-      .clock {
-        font-size: 20vw;
-      }
-
-      .ampm {
-        font-size: 5vw;
+    .dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    .dates div {
+      padding: 0.5rem 0;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    .dates div:hover {
+      background: #333;
+      cursor: pointer;
+    }
+    .highlight {
+      background: #444;
+    }
+    .dim {
+      color: #444;
+    }
+    .sunday {
+      color: #ff9999;
+    }
+    .light-mode .header,
+    .light-mode .days {
+      color: #444;
+    }
+    .light-mode .dim {
+      color: #aaa;
+    }
+    .light-mode .sunday {
+      color: #d33;
+    }
+    .light-mode .dates div:hover {
+      background: #ddd;
+    }
+    .light-mode .highlight {
+      background: #ccc;
+    }
+    @media (max-width: 400px) {
+      .calendar {
+        max-width: 90vw;
       }
     }
   </style>
 </head>
 <body>
-  <div class="clock" id="clock">
-    2:47 <span class="ampm">PM</span>
+  <div class="calendar">
+    <div class="header">
+      <button onclick="changeMonth(-1)">&lt;</button>
+      <div class="month-year" id="monthYear" onclick="toggleLightMode()"></div>
+      <button onclick="changeMonth(1)">&gt;</button>
+    </div>
+    <div class="days">
+      <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+    </div>
+    <div class="dates" id="calendarDates"></div>
   </div>
 
   <script>
-    function updateClock() {
-      const now = new Date();
-      let hours = now.getHours();
-      const minutes = now.getMinutes();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
+    const monthYear = document.getElementById('monthYear');
+    const calendarDates = document.getElementById('calendarDates');
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
 
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      const paddedMinutes = minutes.toString().padStart(2, '0');
+    function renderCalendar(month, year) {
+      const firstDay = (new Date(year, month).getDay() + 6) % 7; // start on Monday
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const prevLastDate = new Date(year, month, 0).getDate();
 
-      document.getElementById('clock').innerHTML = `
-        ${hours}:${paddedMinutes} <span class="ampm">${ampm}</span>
-      `;
+      calendarDates.innerHTML = '';
+      monthYear.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+
+      // previous month's dates
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const day = document.createElement('div');
+        day.textContent = prevLastDate - i;
+        day.classList.add('dim');
+        calendarDates.appendChild(day);
+      }
+
+      // current month's dates
+      for (let i = 1; i <= lastDate; i++) {
+        const date = new Date(year, month, i);
+        const day = document.createElement('div');
+        day.textContent = i;
+
+        if (date.getDay() === 0) {
+          day.classList.add('sunday');
+        }
+        if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          day.classList.add('highlight');
+        }
+        calendarDates.appendChild(day);
+      }
+
+      // fill the remaining cells
+      const totalCells = firstDay + lastDate;
+      const nextDays = (7 - (totalCells % 7)) % 7;
+      for (let i = 1; i <= nextDays; i++) {
+        const day = document.createElement('div');
+        day.textContent = i;
+        day.classList.add('dim');
+        calendarDates.appendChild(day);
+      }
     }
 
-    updateClock();
-    setInterval(updateClock, 1000);
+    function changeMonth(offset) {
+      currentMonth += offset;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar(currentMonth, currentYear);
+    }
 
-    document.body.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-    });
+    function toggleLightMode() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    renderCalendar(currentMonth, currentYear);
   </script>
 </body>
 </html>
